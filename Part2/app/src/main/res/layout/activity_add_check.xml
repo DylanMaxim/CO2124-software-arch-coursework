@@ -25,26 +25,59 @@
             android:id="@+id/editDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Date" />
+            android:clickable="true"
+            android:focusable="false"
+            android:hint="Select Date" />
+
+        <TextView
+            android:id="@+id/textAddDefectsHeading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Defects"
+            android:textColor="@android:color/black"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
         <EditText
             android:id="@+id/editDefectDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Add New Defect" />
+            android:hint="Defect description" />
+
+        <EditText
+            android:id="@+id/editDefectSeverity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Severity (Low or High)" />
+
+        <Button
+            android:id="@+id/buttonAddDefect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Add Defect" />
+
+        <TextView
+            android:id="@+id/textDefectList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="No defects added yet"
+            android:textColor="@android:color/black" />
 
         <Button
             android:id="@+id/buttonSaveCheck"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Save"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="16dp"
+            android:text="Save" />
 
         <Button
             android:id="@+id/buttonCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cancel"
-            android:layout_marginTop="12dp" />
+            android:layout_marginTop="12dp"
+            android:text="Cancel" />
     </LinearLayout>
 </ScrollView>
