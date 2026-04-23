@@ -3,7 +3,6 @@ package com.example.part2.data;
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
-import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 @Entity(
@@ -13,8 +12,7 @@ import androidx.room.PrimaryKey;
                 parentColumns = "checkId",
                 childColumns = "parentCheckId",
                 onDelete = ForeignKey.CASCADE
-        ),
-        indices = {@Index("parentCheckId")}
+        )
 )
 public class Defect {
 

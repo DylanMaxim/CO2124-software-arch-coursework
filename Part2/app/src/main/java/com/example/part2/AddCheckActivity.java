@@ -2,6 +2,7 @@ package com.example.part2;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -21,6 +22,14 @@ import java.util.List;
 
 public class AddCheckActivity extends AppCompatActivity {
 
+    private static final String TAG = AddCheckActivity.class.getSimpleName();
+
+    private static final String KEY_VEHICLE_REG = "key_vehicle_reg";
+    private static final String KEY_DRIVER_NAME = "key_driver_name";
+    private static final String KEY_DATE = "key_date";
+    private static final String KEY_DEFECT_DESC = "key_defect_desc";
+    private static final String KEY_DEFECT_SEV = "key_defect_sev";
+
     private EditText editVehicleReg, editDriverName, editDate, editDefectDescription, editDefectSeverity;
     private TextView textDefectList;
     private AddCheckViewModel formViewModel;
@@ -30,6 +39,8 @@ public class AddCheckActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_check);
+
+        Log.d(TAG, "onCreate");
 
         editVehicleReg = findViewById(R.id.editVehicleReg);
         editDriverName = findViewById(R.id.editDriverName);
@@ -45,11 +56,20 @@ public class AddCheckActivity extends AppCompatActivity {
         formViewModel = new ViewModelProvider(this).get(AddCheckViewModel.class);
         safetyViewModel = new ViewModelProvider(this).get(SafetyViewModel.class);
 
-        editVehicleReg.setText(formViewModel.vehicleReg);
-        editDriverName.setText(formViewModel.driverName);
-        editDate.setText(formViewModel.date);
-        editDefectDescription.setText(formViewModel.defectDescription);
-        editDefectSeverity.setText(formViewModel.defectSeverity);
+        if (savedInstanceState != null) {
+            Log.d(TAG, "Restoring state after rotation");
+            editVehicleReg.setText(savedInstanceState.getString(KEY_VEHICLE_REG, ""));
+            editDriverName.setText(savedInstanceState.getString(KEY_DRIVER_NAME, ""));
+            editDate.setText(savedInstanceState.getString(KEY_DATE, ""));
+            editDefectDescription.setText(savedInstanceState.getString(KEY_DEFECT_DESC, ""));
+            editDefectSeverity.setText(savedInstanceState.getString(KEY_DEFECT_SEV, ""));
+        } else {
+            editVehicleReg.setText(formViewModel.vehicleReg);
+            editDriverName.setText(formViewModel.driverName);
+            editDate.setText(formViewModel.date);
+            editDefectDescription.setText(formViewModel.defectDescription);
+            editDefectSeverity.setText(formViewModel.defectSeverity);
+        }
 
         updateDefectListDisplay();
 
@@ -66,8 +86,7 @@ public class AddCheckActivity extends AppCompatActivity {
                         editDate.setText(formattedDate);
                         formViewModel.date = formattedDate;
                     },
-                    year, month, day
-            );
+                    year, month, day);
 
             datePickerDialog.show();
         });
@@ -86,6 +105,7 @@ public class AddCheckActivity extends AppCompatActivity {
                 return;
             }
 
+            Log.d(TAG, "Adding defect: " + description);
             formViewModel.pendingDefects.add(new Defect(0, description, severity));
             editDefectDescription.setText("");
             editDefectSeverity.setText("");
@@ -96,21 +116,25 @@ public class AddCheckActivity extends AppCompatActivity {
         });
 
         buttonSaveCheck.setOnClickListener(v -> {
-            formViewModel.vehicleReg = editVehicleReg.getText().toString().trim();
-            formViewModel.driverName = editDriverName.getText().toString().trim();
-            formViewModel.date = editDate.getText().toString().trim();
+            String vehicleReg = editVehicleReg.getText().toString().trim();
+            String driverName = editDriverName.getText().toString().trim();
+            String date = editDate.getText().toString().trim();
 
-            if (formViewModel.vehicleReg.isEmpty()) {
+            formViewModel.vehicleReg = vehicleReg;
+            formViewModel.driverName = driverName;
+            formViewModel.date = date;
+
+            if (vehicleReg.isEmpty()) {
                 Toast.makeText(this, "Please enter vehicle details", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            if (formViewModel.driverName.isEmpty()) {
+            if (driverName.isEmpty()) {
                 Toast.makeText(this, "Please enter driver name", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            if (formViewModel.date.isEmpty()) {
+            if (date.isEmpty()) {
                 Toast.makeText(this, "Please select a date", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -118,20 +142,31 @@ public class AddCheckActivity extends AppCompatActivity {
             String overallStatus = formViewModel.pendingDefects.isEmpty() ? "Pass" : "Fail";
 
             SafetyCheck check = new SafetyCheck(
-                    formViewModel.date,
-                    formViewModel.vehicleReg,
-                    formViewModel.driverName,
-                    overallStatus
-            );
+                    date,
+                    vehicleReg,
+                    driverName,
+                    overallStatus);
 
             List<Defect> defectsToSave = new ArrayList<>(formViewModel.pendingDefects);
             safetyViewModel.insertCheckWithDefects(check, defectsToSave);
 
+            Log.d(TAG, "Saving check, status: " + overallStatus);
             formViewModel.pendingDefects.clear();
             finish();
         });
 
         buttonCancel.setOnClickListener(v -> finish());
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(KEY_VEHICLE_REG, editVehicleReg.getText().toString());
+        outState.putString(KEY_DRIVER_NAME, editDriverName.getText().toString());
+        outState.putString(KEY_DATE, editDate.getText().toString());
+        outState.putString(KEY_DEFECT_DESC, editDefectDescription.getText().toString());
+        outState.putString(KEY_DEFECT_SEV, editDefectSeverity.getText().toString());
+        Log.d(TAG, "onSaveInstanceState");
     }
 
     private void updateDefectListDisplay() {
@@ -151,15 +186,5 @@ public class AddCheckActivity extends AppCompatActivity {
                     .append(")\n");
         }
         textDefectList.setText(builder.toString());
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        formViewModel.vehicleReg = editVehicleReg.getText().toString();
-        formViewModel.driverName = editDriverName.getText().toString();
-        formViewModel.date = editDate.getText().toString();
-        formViewModel.defectDescription = editDefectDescription.getText().toString();
-        formViewModel.defectSeverity = editDefectSeverity.getText().toString();
     }
 }

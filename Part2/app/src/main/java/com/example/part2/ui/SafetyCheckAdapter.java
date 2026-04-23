@@ -30,6 +30,7 @@ public class SafetyCheckAdapter extends RecyclerView.Adapter<SafetyCheckAdapter.
 
     public void setItems(List<SafetyCheckWithDefects> items) {
         this.items = items;
+        // notify the adapter that data changed so the list refreshes
         notifyDataSetChanged();
     }
 
@@ -44,9 +45,13 @@ public class SafetyCheckAdapter extends RecyclerView.Adapter<SafetyCheckAdapter.
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         SafetyCheckWithDefects item = items.get(position);
+
+        int defectCount = item.defects.size();
+        String defectLabel = defectCount == 1 ? "1 Defect" : defectCount + " Defects";
+
         String text = item.safetyCheck.getDate() + " - " +
                 item.safetyCheck.getVehicleRegistration() + " - " +
-                item.defects.size() + " Defects";
+                defectLabel;
 
         holder.textRow.setText(text);
 
